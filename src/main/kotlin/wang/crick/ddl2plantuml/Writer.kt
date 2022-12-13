@@ -11,7 +11,7 @@ interface Writer {
         val template = Thread.currentThread().contextClassLoader.getResource("dot.template")!!.readText()
 
         val content = tables.joinToString("") { table ->
-            val columns = table.columnList.joinToString("\n") { "${it.notNullNameWrapper()} ${it.type} ${it.defaultValue} ${it.comment}" }
+            val columns = table.columnList.joinToString("\n") { "${it.notNullNameWrapper()} : ${it.type} ${it.comment}" }
             "Table(${table.name}, \"${table.name}\\n(${table.comment})\"){ \n $columns \n } \n"
         }
 
@@ -19,11 +19,7 @@ interface Writer {
     }
 
     private fun Column.notNullNameWrapper(): String {
-        return if (this.notNull) {
-            "not_null(${this.name})"
-        } else {
-            this.name
-        }
+        return this.name
     }
 }
 
