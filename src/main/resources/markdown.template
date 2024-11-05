@@ -1,10 +1,14 @@
 @startuml
+
+title "xx功能er图"
+
+skinparam linetype ortho
+skinparam packageStyle Rectangle
+
+'自定义实体
 !define Table(name,desc) class name as "desc" << (T,#FFAAAA) >>
-!define primary_key(x) <color:red><b>x</b></color>
-!define unique(x) <color:green>x</color>
-!define not_null(x) <u>x</u>
-hide methods
-hide stereotypes
+!define this_time_add(x) <color:red><b>x</b></color>
+
 
 __content__
 

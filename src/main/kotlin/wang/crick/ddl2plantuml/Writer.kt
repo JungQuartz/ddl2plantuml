@@ -26,23 +26,26 @@ interface Writer {
         // 遍历每个表格，生成PlantUML代码
         val content = tables.joinToString("") { table ->
             // 遍历表格中的每一列，生成列的PlantUML代码
-            val columns = table.columnList.joinToString("\n") { "${it.notNullNameWrapper()} : ${it.type} ${it.comment}" }
+            val columns = table.columnList.joinToString("\n") { "    ${it.name.notNull()} : ${it.type.notNull()} ${it.comment.notNull()}" }
             // 生成单个表格的PlantUML代码
-            "Table(${table.name}, \"${table.name}\\n(${table.comment})\"){ \n $columns \n } \n"
+            "Table(${table.name}, \"${table.name}\\n(${table.comment})\"){ \n$columns \n } \n \n"
         }
 
         // 使用生成的内容替换模板中的占位符
         return template.replace("__content__", content)
     }
 
-    /**
-     * 私有函数，用于处理列名，移除无效字符并确保列名不为空
-     *
-     * @return 返回处理后的列名字符串
-     */
-    private fun Column.notNullNameWrapper(): String {
-        // 移除列名中的反引号字符，如果列名为空则返回空字符串
-        return this.name?.replace("`", "") ?: ""
+
+    fun String.notNull(): String {
+        // 如果字符串为空或者为null，则返回空字符串
+        var result = this?.replace("`", "") ?: ""
+        result = result.replace("'", "")
+
+        // 去除圆括号及其内的内容
+        val pattern = Regex("\\(.*?\\)")
+        result = pattern.replace(result, "")
+
+        return result
     }
 }
 

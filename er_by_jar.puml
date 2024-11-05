@@ -1,0 +1,814 @@
+@startuml
+
+title "xx功能er图"
+
+skinparam linetype ortho
+skinparam packageStyle Rectangle
+
+'自定义实体
+!define Table(name,desc) class name as "desc" << (T,#FFAAAA) >>
+!define this_time_add(x) <color:red><b>x</b></color>
+
+Table(activity_point_secret, "activity_point_secret\n(积分活动发放积分-服务密钥)"){ 
+    id : int  
+    service_code : varchar  服务代码
+    service_name : varchar  服务名
+    service_secret_key : varchar  服务的密钥
+    enabled_flag : tinyint  物理删除位 
+ } 
+ 
+Table(activ_allow_list_branch, "activ_allow_list_branch\n(全局开发分支配置表)"){ 
+    id : bigint  主键ID
+    branch_code : varchar  分支编号
+    create_time : datetime 创建时间
+    update_time : datetime 更新时间
+    create_by : varchar  创建人
+    update_by : varchar  更新人
+    enabled_flag : tinyint  是否可用:1-是 0-否 
+ } 
+ 
+Table(activ_allow_list_cust, "activ_allow_list_cust\n(活动场景可见人员名单(推荐类))"){ 
+    id : bigint  主键ID
+    activ_scene_id : bigint  活动场景ID
+    branch_code : varchar  分支编号
+    cust_id : varchar  客户编号
+    create_time : datetime 创建时间
+    update_time : datetime 更新时间
+    create_by : varchar  
+    update_by : varchar  
+    enabled_flag : tinyint  是否可用:1-是 0-否 
+ } 
+ 
+Table(activ_business_action_def, "activ_business_action_def\n(业务行为定义)"){ 
+    id : bigint  自增ID
+    bu_id : bigint  业务线ID
+    action_name : varchar  行为名称
+    action_desc : varchar  行为描述
+    create_time : datetime 创建时间
+    update_time : datetime 更新时间
+    create_by : varchar  创建人
+    update_by : varchar  更新人
+    enabled_flag : tinyint  是否可用:1-是 0-否 
+ } 
+ 
+Table(activ_business_def, "activ_business_def\n(业务线定义)"){ 
+    id : bigint  业务线ID
+    bu_name : varchar  业务线名称
+    bu_desc : varchar  业务线说明
+    create_time : datetime 创建时间
+    update_time : datetime 更新时间
+    create_by : varchar  创建人
+    update_by : varchar  更新人
+    enabled_flag : tinyint  是否可用:1-是 0-否 
+ } 
+ 
+Table(activ_popup_def, "activ_popup_def\n(积分活动弹窗定义表)"){ 
+    id : bigint  主键
+    task_id : bigint  积分任务id
+    title : varchar  弹窗标题
+    button_text : varchar  弹窗按钮文字
+    image_url : text 弹窗图片url
+    content : varchar  内容 
+ } 
+ 
+Table(activ_task_action_relation, "activ_task_action_relation\n(积分任务定义表)"){ 
+    id : bigint  自增ID
+    task_id : bigint  任务定义ID
+    action_id : bigint  业务行为ID
+    task_code : varchar  场景编号：SIGN-日常签到 READ-金融学习 REPAY-还款 BIND-绑定公众号 INVITE_REGIST-邀请注册 INVITE_CREDIT-邀请授信 INVITE_LOAN-邀请支用
+    create_time : datetime 创建时间
+    update_time : datetime 更新时间
+    create_by : varchar  创建人
+    update_by : varchar  更新人
+    enabled_flag : tinyint  是否可用:1-是 0-否 
+ } 
+ 
+Table(activ_task_def, "activ_task_def\n(积分任务定义表)"){ 
+    id : bigint  自增ID
+    task_code : varchar  场景编号：SIGN-日常签到 READ-金融学习 REPAY-还款 BIND-绑定公众号 INVITE_REGIST-邀请注册 INVITE_CREDIT-邀请授信 INVITE_LOAN-邀请支用
+    task_name : varchar  活动名称
+    task_desc : varchar  活动描述
+    task_status : tinyint  活动状态: 0-未开始 1-进行中 2-已停止
+    task_priority : tinyint  活动优先级
+    task_begin_date : datetime 活动开始日期
+    task_end_date : datetime 活动结束日期
+    task_type : varchar  积分活动类型 REC-推荐类 SELF-主动类
+    obtain_mode : varchar  发放方式 AUTO-自动 MANUAL-手动
+    is_branch_allow_list : tinyint  是否启用分支限制: 0-否 1-是
+    is_cust_allow_list : tinyint  是否启用人员限制: 0-否 1-是
+    point_expire_days : int  积分过期天数
+    rec_expire_days : int  推荐过期时间
+    rec_max : int  邀请用户上限
+    rec_regis_protec_days : int  注册推荐人保护期
+    rec_point_award_person : tinyint  积分推荐人类型 0-非推荐活动 1-注册推荐人 2-活动推荐人
+    is_view_on_complete : tinyint  完成后是否显示: 0-否 1-是
+    version : bigint  记录版本号
+    create_time : datetime 创建时间
+    update_time : datetime 更新时间
+    create_by : varchar  创建人
+    update_by : varchar  更新人
+    enabled_flag : tinyint  是否可用:1-是 0-否 
+ } 
+ 
+Table(black_user, "black_user\n(utf8mb4)"){ 
+    id : int  
+    user_no : varchar  黑名单用户编号
+    create_time : datetime 
+    create_user : varchar   
+ } 
+ 
+Table(common_config, "common_config\n(参数配置表)"){ 
+    id : int  
+    code : varchar  编码
+    param : varchar  参数
+    enable_flag : tinyint  有效标志
+    remark : varchar  备注
+    create_time : datetime 创建时间 
+    update_time : datetime 更新时间
+    create_by : varchar  创建人
+    update_by : varchar  修改人
+    version : int   
+ } 
+ 
+Table(common_file, "common_file\n(通用附件表)"){ 
+    id : bigint  主键
+    biz_id : bigint  对应业务主键ID, 入商品ID
+    file_type : tinyint  文件类型 1-首页banner 2-还款弹窗图片 3-支用弹窗图片 4-金融学习支用图片
+    link_forward : varchar  跳转链接
+    file_id : varchar  OSS文件ID
+    file_extension : varchar  文件扩展名
+    file_name : varchar  文件名称
+    file_size : varchar  文件大小
+    file_sort : tinyint  排序
+    create_time : datetime 创建时间
+    update_time : datetime 更新时间
+    create_by : varchar  创建人
+    update_by : varchar  更新人
+    enabled_flag : tinyint  是否可用:1-是 0-否 
+ } 
+ 
+Table(common_seq, "common_seq\n(流水号生成规则表)"){ 
+    id : int  
+    name : varchar  序列号名字
+    value : int  序列号当前值
+    min_value : int  序列号最小值
+    max_value : int  序列号最大值
+    step : int  步长，每次取步步长个数字放到内存里，不要太大，建议200
+    retry_times : int  取序列号重试次数，建议3
+    create_time : datetime 创建时间
+    update_time : datetime 修改时间
+    enabled_flag : varchar  是否删除，0表示删除，1表示使用中 
+ } 
+ 
+Table(credit_award_deal_log, "credit_award_deal_log\n(极速贷村代推广奖励发放日志记录)"){ 
+    id : bigint  
+    user_no : varchar  用户编号
+    id_no : varchar  客户身份证号
+    mobile : varchar  客户手机号
+    credit_push_content : json 授信完成推送内容
+    query_award_recommended_content : json 查询获奖推荐人信息
+    notify_sync_recommended_content : json 通知同步推荐人返回信息
+    send_award_order_content : json 发送奖励订单信息
+    create_time : datetime 创建时间
+    update_time : datetime 修改时间
+    enabled_flag : tinyint   
+ } 
+ 
+Table(cust_point_balance, "cust_point_balance\n(客户积分余额表)"){ 
+    id : bigint  主键ID
+    user_no : varchar  用户编号
+    cust_id : varchar  客户编号
+    cust_name : varchar  客户姓名
+    cust_balance : bigint  客户积分余额
+    cust_used : bigint  客户已使用积分
+    cur_year : varchar  当前年份
+    this_year_points : bigint  今年可用积分
+    last_year_points : bigint  去年可用积分
+    version : bigint  版本号:乐观锁控制
+    sign_notice_flag : tinyint  签到提醒开关标记 1-开启 0-关闭
+    create_time : datetime 创建时间
+    update_time : datetime 更新时间
+    create_by : varchar  创建人
+    update_by : varchar  更新人
+    enabled_flag : tinyint  是否可用:1-是 0-否
+    balance_bak : bigint  积分余额备份，积分项目下线使用 
+ } 
+ 
+Table(cust_point_change_record, "cust_point_change_record\n(客户积分变更表)"){ 
+    id : bigint  主键ID
+    cust_id : varchar  客户编号
+    scene_id : bigint  场景ID
+    source_id : bigint  来源id
+    change_type : tinyint  变更类型 1-收入 2-消费
+    biz_id : varchar  交易编号：任务明细ID或外部单号
+    points : bigint  变更积分值
+    change_desc : varchar  变更描述
+    expire_time : datetime 积分过期时间
+    create_time : datetime 创建时间
+    update_time : datetime 更新时间
+    create_by : varchar  创建人
+    update_by : varchar  更新人
+    enabled_flag : tinyint  是否可用:1-是 0-否
+    user_no : varchar  用户编码 
+ } 
+ 
+Table(cust_point_task_record, "cust_point_task_record\n(客户任务记录总表)"){ 
+    id : bigint  主键ID
+    cust_id : varchar  客户ID
+    relation_id : bigint  场景ID
+    task_status : tinyint  任务状态：1-待领取 2-已领取 3-已过期 4-冻结中 5-已作废
+    obtain_points : bigint  获取积分数额
+    finish_channel : varchar  完成渠道
+    finish_time : datetime 完成时间
+    obtain_channel : varchar  领取渠道
+    obtain_time : datetime 领取时间
+    expire_time : datetime 领取截止时间
+    task_desc : varchar  描述
+    create_mobile : varchar  任务创建手机号
+    create_channel : varchar  创建渠道
+    create_time : datetime 创建时间
+    update_time : datetime 更新时间
+    create_by : varchar  创建人
+    update_by : varchar  更新人
+    enabled_flag : tinyint  是否可用:1-是 0-否
+    user_no : varchar  用户编码 
+ } 
+ 
+Table(cust_recomend_complete_info, "cust_recomend_complete_info\n(推荐任务完成情况记录表)"){ 
+    id : bigint  主键ID
+    task_id : bigint  活动ID
+    cust_id : varchar  推荐人客户ID
+    year : int  年份
+    month : tinyint  月份
+    day : tinyint  日
+    week_of_year : tinyint  当年第几周
+    task_threshold : int  任务的阈值
+    counter : int  周期内有效次数
+    detail_id_list : varchar  完成详细情况
+    version : bigint  版本号
+    create_time : datetime 创建时间
+    update_time : datetime 更新时间
+    create_by : varchar  创建人
+    update_by : varchar  更新人
+    enabled_flag : tinyint  是否可用:1-是 0-否 
+ } 
+ 
+Table(cust_recomend_cust_info, "cust_recomend_cust_info\n(邀请人信息存储表)"){ 
+    id : bigint  主键ID
+    verify_code : varchar  邀请人存储码
+    cust_id : varchar  客户ID
+    cust_name : varchar  客户姓名
+    popup_count : int  弹窗次数
+    create_time : datetime 创建时间
+    update_time : datetime 更新时间
+    create_by : varchar  创建人
+    update_by : varchar  更新人
+    enabled_flag : tinyint  是否可用:1-是 0-否 
+ } 
+ 
+Table(cust_recomend_relation, "cust_recomend_relation\n(客户推荐关系记录)"){ 
+    id : bigint  主键ID
+    task_id : bigint  活动任务ID
+    user_id : varchar  用户ID
+    cust_id : varchar  客户ID
+    cust_mobile : varchar  客户手机号
+    cust_name : varchar  客户姓名
+    cust_idno : varchar  客户身份证
+    cust_valid_status : char  实名规则验证状态 Y-成功 N-失败
+    rec_cust_id : varchar  推荐人客户ID
+    rec_cust_name : varchar  推荐人客户姓名
+    rec_cust_source : tinyint  推荐人来源 1-积分白名单 2-数仓白名单
+    real_rec_cust_id : varchar  实际获益推荐人客户ID
+    real_rec_cust_name : varchar  实际获益推荐人客户姓名
+    event_channel : varchar  来源渠道
+    task_desc : varchar  描述
+    create_time : datetime 创建时间
+    update_time : datetime 更新时间
+    create_by : varchar  创建人
+    update_by : varchar  更新人
+    enabled_flag : tinyint  是否可用:1-是 0-否 
+ } 
+ 
+Table(cust_recomend_relation_promotion, "cust_recomend_relation_promotion\n(乡助推广佣金任务-客户推荐关系记录)"){ 
+    id : bigint  主键ID
+    user_id : varchar  用户ID
+    cust_id : varchar  客户ID
+    cust_mobile : varchar  客户手机号
+    cust_name : varchar  客户姓名
+    cust_idno : varchar  客户身份证
+    cust_valid_status : char  实名状态 Y-已实名 N-未实名或老客户
+    valid_start_time : datetime 有效期开始时间
+    valid_end_time : datetime 有效期结束时间
+    valid_status : int  推荐关系有效标志 1为有效 其他为失效
+    brand_new_flag : tinyint  纯新客标记 1-纯新客 0-普通新客
+    event_channel : varchar  来源渠道
+    task_desc : varchar  描述
+    create_time : datetime 创建时间
+    update_time : datetime 更新时间
+    create_by : varchar  创建人
+    update_by : varchar  更新人
+    enabled_flag : tinyint  是否可用:1-是 0-否
+    rec_cust_id : varchar  推荐人客户ID
+    rec_cust_name : varchar  推荐人客户姓名
+    rec_cust_source : tinyint  推荐人来源 1-积分白名单 2-数仓白名单 
+ } 
+ 
+Table(cust_reward_record, "cust_reward_record\n(奖励客户积分记录表)"){ 
+    id : bigint  主键ID
+    order_no : varchar  订单号
+    user_no : varchar  用户编号
+    cust_id : varchar  信贷客户ID
+    reward_points : bigint  获取积分数额
+    record_desc : varchar  描述
+    reward_channel : varchar  获取渠道
+    create_time : datetime 创建时间
+    update_time : datetime 更新时间
+    create_by : varchar  创建人
+    update_by : varchar  更新人
+    enabled_flag : tinyint  是否可用:1-是 0-否 
+ } 
+ 
+Table(cust_task_record_ask_export, "cust_task_record_ask_export\n(utf8mb4)"){ 
+    id : bigint  主键ID
+    point_task_id : bigint  积分任务ID
+    user_no : varchar  用户编码
+    cust_id : varchar  客户ID
+    relation_id : bigint  场景ID
+    theme_id : bigint  提问问题-主题ID
+    record_day : varchar  提问时间yyyyMMdd
+    event_channel : varchar  完成渠道
+    task_desc : varchar  描述
+    create_time : datetime 创建时间
+    update_time : datetime 更新时间
+    create_by : varchar  创建人
+    update_by : varchar  更新人
+    enabled_flag : tinyint  是否可用:1-是 0-否 
+ } 
+ 
+Table(cust_task_record_binding, "cust_task_record_binding\n(客户绑定任务记录分表)"){ 
+    id : bigint  主键ID
+    point_task_id : bigint  积分任务ID
+    cust_id : varchar  客户ID
+    relation_id : bigint  场景ID
+    event_channel : varchar  完成渠道
+    task_desc : varchar  描述
+    create_time : datetime 创建时间
+    update_time : datetime 更新时间
+    create_by : varchar  创建人
+    update_by : varchar  更新人
+    enabled_flag : tinyint  是否可用:1-是 0-否
+    user_no : varchar  用户编号 
+ } 
+ 
+Table(cust_task_record_chunk, "cust_task_record_chunk\n(我的农场新建地块任务记录分表)"){ 
+    id : bigint  主键ID
+    point_task_id : bigint  积分任务ID
+    cust_id : varchar  信贷客户ID
+    user_no : varchar  用户编号
+    relation_id : bigint  场景ID
+    event_channel : varchar  完成渠道
+    chunk_id : varchar  农场地块id
+    task_desc : varchar  描述
+    create_time : datetime 创建时间
+    update_time : datetime 更新时间
+    create_by : varchar  创建人
+    update_by : varchar  更新人
+    enabled_flag : tinyint  是否可用:1-是 0-否 
+ } 
+ 
+Table(cust_task_record_issue, "cust_task_record_issue\n(客户发布任务记录分表)"){ 
+    id : bigint  主键ID
+    point_task_id : bigint  积分任务ID
+    cust_id : varchar  客户编号
+    relation_id : bigint  场景ID
+    year : int  年分
+    month : tinyint  月份
+    day : tinyint  日
+    issue_type : varchar  发布类型
+    issue_id : bigint  发布文章id
+    event_channel : varchar  来源渠道
+    create_time : datetime 创建时间
+    update_time : datetime 更新时间
+    create_by : varchar  创建人
+    update_by : varchar  更新人
+    enabled_flag : tinyint  是否可用:1-是 0-否
+    user_no : varchar  用户编号 
+ } 
+ 
+Table(cust_task_record_more, "cust_task_record_more\n(重复类型任务记录表)"){ 
+    id : bigint  主键ID
+    point_task_id : bigint  积分任务ID
+    user_no : varchar  用户编码
+    cust_id : varchar  客户ID
+    relation_id : bigint  场景ID
+    business_id : varchar  业务id
+    event_channel : varchar  完成渠道
+    task_desc : varchar  描述
+    create_time : datetime 创建时间
+    update_time : datetime 更新时间
+    create_by : varchar  创建人
+    update_by : varchar  更新人
+    enabled_flag : tinyint  是否可用:1-是 0-否 
+ } 
+ 
+Table(cust_task_record_promotion, "cust_task_record_promotion\n(客户推广任务完成情况表)"){ 
+    id : bigint  主键ID
+    order_id : bigint  分销订单id
+    action_id : bigint  行为id
+    task_id : bigint  任务ID
+    rec_id : bigint  邀请记录ID
+    rec_type : tinyint  参与类型:1-被邀请 2-邀请
+    cust_id : varchar  被邀请客户ID
+    finish_time : datetime 完成时间
+    finish_channel : varchar  完成渠道
+    rec_cust_id : varchar  邀请客户id
+    decision_no : varchar  决策号
+    loan_no : varchar  借据号
+    apply_id : varchar  申请单号
+    amount : decimal  支用金额
+    loan_type : varchar  贷款产品
+    task_desc : varchar  描述
+    create_time : datetime 创建时间
+    update_time : datetime 更新时间
+    create_by : varchar  创建人
+    update_by : varchar  更新人
+    enabled_flag : tinyint  是否可用:1-是 0-否 
+ } 
+ 
+Table(cust_task_record_promotion_balance, "cust_task_record_promotion_balance\n(客户乡助推广-支用任务(日均贷款余额)完成情况表)"){ 
+    id : bigint  主键ID
+    order_id : bigint  分销订单id
+    action_id : bigint  行为id
+    task_id : bigint  任务ID
+    rec_id : bigint  邀请记录ID
+    rec_type : tinyint  参与类型:1-被邀请 2-邀请
+    cust_id : varchar  被邀请客户ID
+    finish_time : datetime 完成时间
+    rec_cust_id : varchar  邀请客户id
+    rec_dbc_level : tinyint  邀请用户分销等级
+    first_credit_loan_date : datetime 首次极速贷支用时间
+    start_date : datetime 开始日期
+    end_date : datetime 结束日期
+    daily_average_loan_balance : decimal  日均贷款余额
+    task_desc : varchar  描述
+    reward_status : tinyint  奖励发放状态
+    create_time : datetime 创建时间
+    update_time : datetime 更新时间
+    create_by : varchar  创建人
+    update_by : varchar  更新人
+    enabled_flag : tinyint  是否可用:1-是 0-否 
+ } 
+ 
+Table(cust_task_record_read, "cust_task_record_read\n(客户阅读任务记录分表)"){ 
+    id : bigint  主键ID
+    point_task_id : bigint  积分任务ID
+    cust_id : varchar  客户编号
+    relation_id : bigint  场景ID
+    year : int  年分
+    week_of_year : tinyint  当年第几周
+    counter : tinyint  本周阅读次数计数器
+    file_id : varchar  文章ID
+    read_duration : bigint  阅读市场
+    event_channel : varchar  完成渠道
+    task_desc : varchar  描述
+    create_time : datetime 创建时间
+    update_time : datetime 更新时间
+    create_by : varchar  创建人
+    update_by : varchar  更新人
+    enabled_flag : tinyint  是否可用:1-是 0-否
+    user_no : varchar  用户编号 
+ } 
+ 
+Table(cust_task_record_recomend, "cust_task_record_recomend\n(客户推荐任务记录分表)"){ 
+    id : bigint  主键ID
+    relation_id : bigint  场景ID
+    rec_id : bigint  邀请记录ID
+    rec_type : tinyint  参与类型:1-被邀请 2-邀请
+    point_task_id : bigint  积分任务ID
+    cust_id : varchar  客户ID
+    finish_time : datetime 完成时间
+    finish_channel : varchar  完成渠道
+    loan_no : varchar  借据号
+    apply_id : varchar  申请单号
+    task_desc : varchar  描述
+    create_time : datetime 创建时间
+    update_time : datetime 更新时间
+    create_by : varchar  创建人
+    update_by : varchar  更新人
+    enabled_flag : tinyint  是否可用:1-是 0-否 
+ } 
+ 
+Table(cust_task_record_repay, "cust_task_record_repay\n(客户还款任务记录分表)"){ 
+    id : bigint  主键ID
+    point_task_id : bigint  积分任务ID
+    cust_id : varchar  客户ID
+    relation_id : bigint  场景ID
+    year_and_month : varchar  还款年月
+    loan_id : varchar  借据ID
+    real_repay_id : varchar  实还记录ID
+    repay_type : varchar  还款行为:1-正常还款 2-提前还款
+    event_channel : varchar  完成渠道
+    task_desc : varchar  描述
+    create_time : datetime 创建时间
+    update_time : datetime 更新时间
+    create_by : varchar  创建人
+    update_by : varchar  更新人
+    enabled_flag : tinyint  是否可用:1-是 0-否 
+ } 
+ 
+Table(cust_task_record_sign, "cust_task_record_sign\n(客户签到任务记录分表)"){ 
+    id : bigint  主键ID
+    point_task_id : bigint  积分任务ID
+    cust_id : varchar  客户编号
+    relation_id : bigint  场景ID
+    year : int  年分
+    month : tinyint  月份
+    day : tinyint  日
+    counter : bigint  点赞计数器
+    event_channel : varchar  来源渠道
+    create_time : datetime 创建时间
+    update_time : datetime 更新时间
+    create_by : varchar  创建人
+    update_by : varchar  更新人
+    enabled_flag : tinyint  是否可用:1-是 0-否
+    user_no : varchar  用户编号 
+ } 
+ 
+Table(cust_task_record_single, "cust_task_record_single\n(唯一类型任务记录表)"){ 
+    id : bigint  主键ID
+    point_task_id : bigint  积分任务ID
+    user_no : varchar  用户编码
+    user_mobile : varchar  用户号码
+    cust_id : varchar  客户ID
+    relation_id : bigint  场景ID
+    business_id : varchar  业务id
+    event_channel : varchar  完成渠道
+    task_desc : varchar  描述
+    create_time : datetime 创建时间
+    update_time : datetime 更新时间
+    create_by : varchar  创建人
+    update_by : varchar  更新人
+    enabled_flag : tinyint  是否可用:1-是 0-否 
+ } 
+ 
+Table(cust_task_record_todo, "cust_task_record_todo\n(待处理任务记录表)"){ 
+    id : bigint  主键ID
+    relation_id : bigint  场景ID
+    rec_id : bigint  邀请记录ID
+    cust_id : varchar  客户ID
+    loan_no : varchar  借据号
+    apply_id : varchar  申请单号
+    bank_dt : datetime 起息日
+    confirm_status : tinyint  状态 1-待确认 2-已确认 3-失效
+    finish_time : datetime 完成时间
+    idle_time : datetime 待激活时间
+    finish_channel : varchar  完成渠道
+    task_desc : varchar  描述
+    create_time : datetime 创建时间
+    update_time : datetime 更新时间
+    create_by : varchar  创建人
+    update_by : varchar  更新人
+    enabled_flag : tinyint  是否可用:1-是 0-否 
+ } 
+ 
+Table(effective_browse_record, "effective_browse_record\n(有效浏览记录表)"){ 
+    id : bigint  主键ID
+    rpt_date : varchar  yyyy-MM-dd
+    browse_open_id : varchar  浏览人用户id
+    forward_user_id : varchar  转发人用户id
+    page_code : varchar  页面id
+    page_module : varchar  页面模块
+    browse_time : datetime 浏览时间 
+ } 
+ 
+Table(forward_page_module, "forward_page_module\n(转发页面模块配置)"){ 
+    id : bigint  主键ID
+    page_module_code : varchar  页面模块编码
+    page_module_title : varchar  页面模块标题
+    page_module_desc : varchar  页面模版描述
+    desc_key_word : varchar  页面描述标红字段
+    is_hot_flag : tinyint  是否展示火热标记
+    order_no : tinyint  页面展示排序
+    param : varchar  跳转参数
+    icon_oss_key : varchar  icon在oss的文件
+    create_time : datetime 创建时间
+    update_time : datetime 更新时间
+    create_by : varchar  创建人
+    update_by : varchar  更新人
+    enabled_flag : tinyint  是否可用:1-是 0-否 
+ } 
+ 
+Table(forward_reward_task_log, "forward_reward_task_log\n(转发赚钱任务记录表)"){ 
+    id : bigint  主键ID
+    task_type : varchar  任务类型
+    task_desc : varchar  任务描述
+    task_date : varchar  任务日期 yyyy-MM-dd
+    task_sts : varchar  任务状态
+    task_remarks : varchar  任务备注
+    create_time : datetime 创建时间
+    update_time : datetime 更新时间
+    create_by : varchar  创建人
+    update_by : varchar  更新人
+    enabled_flag : tinyint  是否可用:1-是 0-否 
+ } 
+ 
+Table(global_allow_list_branch, "global_allow_list_branch\n(全局开发分支配置表)"){ 
+    id : bigint  主键ID
+    area_code : varchar  区域编号
+    area_name : varchar  区域名称
+    branch_code : varchar  分支编号
+    branch_name : varchar  分支名称
+    create_time : datetime 创建时间
+    update_time : datetime 更新时间
+    create_by : varchar  创建人
+    update_by : varchar  更新人
+    enabled_flag : tinyint  是否可用:1-是 0-否 
+ } 
+ 
+Table(global_block_cust_list, "global_block_cust_list\n(全局黑名单客户)"){ 
+    id : bigint  主键ID
+    cust_id : varchar  客户ID
+    create_time : datetime 创建时间
+    update_time : datetime 更新时间
+    create_by : varchar  创建人
+    update_by : varchar  更新人
+    enabled_flag : tinyint  是否可用:1-是 0-否 
+ } 
+ 
+Table(insert_log, "insert_log\n(utf8mb4)"){ 
+    table_name : varchar  
+    id_max : bigint  
+    create_time : datetime  
+ } 
+ 
+Table(invalid_cust_recomend_relation, "invalid_cust_recomend_relation\n(无效客户推荐关系记录)"){ 
+    id : bigint  主键ID
+    task_id : bigint  活动任务ID
+    user_id : varchar  用户ID
+    cust_id : varchar  客户ID
+    cust_mobile : varchar  客户手机号
+    cust_name : varchar  客户姓名
+    cust_idno : varchar  客户身份证
+    cust_valid_status : char  实名规则验证状态 Y-成功 N-失败
+    rec_cust_id : varchar  推荐人客户ID
+    rec_cust_name : varchar  推荐人客户姓名
+    real_rec_cust_id : varchar  实际获益推荐人客户ID
+    real_rec_cust_name : varchar  实际获益推荐人客户姓名
+    event_channel : varchar  来源渠道
+    task_desc : varchar  描述
+    create_time : datetime 创建时间
+    update_time : datetime 更新时间
+    create_by : varchar  创建人
+    update_by : varchar  更新人
+    enabled_flag : tinyint  是否可用:1-是 0-否 
+ } 
+ 
+Table(promotion_action_def, "promotion_action_def\n(业务行为定义)"){ 
+    id : bigint  自增ID
+    bu_id : bigint  业务线ID
+    action_name : varchar  行为名称
+    action_desc : varchar  行为描述
+    create_time : datetime 创建时间
+    update_time : datetime 更新时间
+    create_by : varchar  创建人
+    update_by : varchar  更新人
+    enabled_flag : tinyint  是否可用:1-是 0-否 
+ } 
+ 
+Table(promotion_task_action_relation, "promotion_task_action_relation\n(支用任务和定义表)"){ 
+    id : bigint  自增ID
+    task_id : bigint  任务定义ID
+    action_id : bigint  业务行为ID
+    create_time : datetime 创建时间
+    update_time : datetime 更新时间
+    create_by : varchar  创建人
+    update_by : varchar  更新人
+    enabled_flag : tinyint  是否可用:1-是 0-否 
+ } 
+ 
+Table(promotion_task_def, "promotion_task_def\n(推广任务定义)"){ 
+    id : bigint  主键id
+    name : varchar  任务名
+    task_desc : varchar  描述
+    param : varchar  参数 json格式
+    finish_day_limit : int  从注册日开始，任务可完成的截止天数
+    task_status : tinyint  活动状态: 0-未开始 1-进行中 2-已停止
+    create_time : datetime 创建时间
+    update_time : datetime 更新时间
+    create_by : varchar  创建人
+    update_by : varchar  更新人
+    enabled_flag : tinyint  是否可用:1-是 0-否 
+ } 
+ 
+Table(reward_record_forward_browse, "reward_record_forward_browse\n(奖励记录表)"){ 
+    id : bigint  主键ID
+    user_id : varchar  用户id
+    user_name : varchar  用户姓名
+    loan_cust_id : varchar  信贷客户编号
+    branch_code : varchar  用户分支编号
+    branch_name : varchar  用户分支名
+    area_code : varchar  用户区域编号
+    area_name : varchar  用户区域名称
+    user_mobile : varchar  用户手机号
+    manager_code : varchar  客户经理主职工号
+    manager_name : varchar  客户经理姓名
+    manager_mobile : varchar  客户经理手机号
+    leader_code : varchar  所属督导工号
+    leader_name : varchar  所属督导姓名
+    leader_mobile : varchar  督导手机号
+    distribution_level : varchar  分销级别
+    forward_num : int  转发次数
+    browse_num : int  有效浏览次数
+    reward_date : varchar  下发奖励日期
+    reward_amount : decimal  奖励金额
+    reward_status : varchar  下发奖励状态
+    status : varchar  状态
+    order_no : varchar  分销订单号
+    create_time : datetime 创建时间
+    update_time : datetime 更新时间
+    create_by : varchar  创建人
+    update_by : varchar  更新人
+    enabled_flag : tinyint  是否可用:1-是 0-否 
+ } 
+ 
+Table(reward_record_forward_browse_team, "reward_record_forward_browse_team\n(团队奖励记录表)"){ 
+    id : bigint  主键ID
+    leader_user_id : varchar  督导用户id
+    leader_code : varchar  督导工号
+    leader_name : varchar  督导姓名
+    leader_mobile : varchar  督导手机号
+    branch_code : varchar  分支编号
+    branch_name : varchar  分支名称
+    team_member : varchar  团队成员
+    team_size : int  团队人数
+    per_capita_forward_num : int  人均分享次数
+    per_capita_browse_num : int  人均浏览次数
+    total_browse_num : int  团队总浏览人数
+    total_forward_num : int  团队总转发数
+    reward_date : varchar  下发奖励日期
+    reward_amount : decimal  金额
+    reward_status : varchar  下发奖励状态
+    status : varchar  状态
+    order_no : varchar  分销订单号
+    create_time : datetime 创建时间
+    update_time : datetime 更新时间
+    create_by : varchar  创建人
+    update_by : varchar  更新人
+    enabled_flag : tinyint  是否可用:1-是 0-否 
+ } 
+ 
+Table(user_point_monitor, "user_point_monitor\n(utf8mb4)"){ 
+    id : int  
+    record_time : datetime 用户领取积分时间
+    user_no : varchar  
+    create_date : date 创建日期
+    log_count : bigint  埋点记录数
+    point_change_record : varchar  积分流水汇总
+    is_black_user : tinyint  是否为黑名单用户
+    his_record_count : int  历史监控记录数 
+ } 
+ 
+Table(user_recomend_info, "user_recomend_info\n(邀请人信息存储表)"){ 
+    id : bigint  主键ID
+    verify_code : varchar  邀请人存储码
+    user_no : varchar  用户编码
+    user_name : varchar  用户昵称
+    create_time : datetime 创建时间
+    update_time : datetime 更新时间
+    create_by : varchar  创建人
+    update_by : varchar  更新人
+    enabled_flag : tinyint  是否可用:1-是 0-否 
+ } 
+ 
+Table(user_recomend_relation, "user_recomend_relation\n(客户推荐关系记录)"){ 
+    id : bigint  主键ID
+    task_id : bigint  活动任务ID
+    user_no : varchar  用户编码
+    user_mobile : varchar  用户手机号
+    points : bigint  获取积分数额
+    rec_user_no : varchar  推荐人用户编码
+    event_channel : varchar  来源渠道
+    task_desc : varchar  描述
+    recomend_valid : varchar  是否有效:Y-是 N-否 超过奖励上限的视为无效或者完成任务动作执行失败的
+    create_time : datetime 创建时间
+    update_time : datetime 更新时间
+    create_by : varchar  创建人
+    update_by : varchar  更新人
+    enabled_flag : tinyint  是否可用:1-是 0-否 
+ } 
+ 
+Table(user_vote_monitor, "user_vote_monitor\n(utf8mb4)"){ 
+    id : int  
+    user_no : varchar  
+    activity_id : varchar  
+    create_date : date 创建日期
+    vote_record : varchar  当日投票记录
+    vote_his_record : varchar  历史投票记录
+    is_black_user : tinyint  历史投票记录
+    log_count : bigint  埋点记录数
+    his_record_count : int  历史监控记录数 
+ } 
+
+
+
+@enduml
